@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Volume Converter - UPDATED</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 16px;
+      line-height: 1.2;
+    }
+
+    body {
+      background: #f8f9fa;
+      /* min-height: 100vh; */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .converter-container {
+      background: white;
+      border-radius: 12px;
+      padding: 40px;
+      box-shadow: 0 2px 10px rgba(0,0,0,.1);
+      max-width: 700px;
+      width: 100%;
+      border: 1px solid #e1e5e9;
+    }
+
+    h1 {
+      text-align: center;
+      color: #333;
+      margin-bottom: 30px;
+      font-size: 2rem;
+      font-weight: 600;
+    }
+
+    .conversion-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 30px;
+    }
+
+    .input-group {
+      flex: 1;
+      /* min-width: 180px; */
+    }
+    .input-field, .unit-selector {
+      width: 100%;
+      border-radius: 4px;
+      padding: 5px 10px;
+      border: 1px solid #dadce0;
+      transition: all 0.3s ease;
+      text-align: center;
+    }
+    
+    .input-field {
+      background: white;
+      font-size: 1.8rem;
+      margin-bottom: -1px;
+    }
+
+    .input-field:focus {
+      outline: none;
+    }
+
+    .unit-selector {
+      background-color: #f8f9fa;
+      /* font-size: 1rem; */
+      cursor: pointer;
+    }
+
+    .unit-selector:focus {
+      outline: none;
+    }
+
+    .equals-sign {
+      font-size: 2rem;
+      color: #70757a;
+    }
+
+    .swap-button {
+      background: linear-gradient(45deg, #667eea, #764ba2);
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      font-size: 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+    }
+    button {
+      color: white;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border: none;
+    }
+
+    .swap-button:hover {
+      transform: rotate(180deg);
+    }
+
+    .clear-button {
+      background: #ff6b6b;
+      border-radius: 10px;
+      padding: 12px 24px;
+      width: 100%;
+    }
+
+    .clear-button:hover {
+      background: #ff5252;
+    }
+
+    .unit-category {
+      margin-bottom: 30px;
+    }
+
+    .category-title {
+      display: none;
+    }
+
+  </style>
+</head>
+
+<body>
+  <div class="converter-container">
+    <h1>Volume Converter</h1>
+
+    <div class="conversion-row">
+      <div class="input-group">
+        <input type="number" id="input1" class="input-field" placeholder="Enter value" value="16">
+        <select id="unit1" class="unit-selector">
+          <option value="fl_oz" selected>Fluid ounce</option>
+          <option value="cup">Cup</option>
+          <option value="pint">Pint</option>
+          <option value="quart">Quart</option>
+          <option value="gallon">Gallon</option>
+          <option value="tablespoon">Tablespoon</option>
+          <option value="teaspoon">Teaspoon</option>
+          <option value="ml">Milliliter</option>
+          <option value="l">Liter</option>
+        </select>
+      </div>
+
+      <div class="equals-sign">=</div>
+
+      <div class="input-group">
+        <input type="number" id="input2" class="input-field" placeholder="Result" value="2">
+        <select id="unit2" class="unit-selector">
+          <option value="fl_oz">Fluid ounce</option>
+          <option value="cup" selected>Cup</option>
+          <option value="pint">Pint</option>
+          <option value="quart">Quart</option>
+          <option value="gallon">Gallon</option>
+          <option value="tablespoon">Tablespoon</option>
+          <option value="teaspoon">Teaspoon</option>
+          <option value="ml">Milliliter</option>
+          <option value="l">Liter</option>
+        </select>
+      </div>
+    </div>
+
+    <button class="swap-button" id="swapBtn" title="Swap units">⇄</button>
+
+    <button class="clear-button" id="clearBtn">Clear All</button>
+  </div>
+
+  <script>
+    // Direct conversion factors between units
+    const conversionFactors = {
+      'fl_oz': {
+        'fl_oz': 1,
+        'cup': 0.125,
+        'pint': 0.0625,
+        'quart': 0.03125,
+        'gallon': 0.0078125,
+        'tablespoon': 2,
+        'teaspoon': 6,
+        'ml': 29.5735,
+        'l': 0.0295735
+      },
+      'cup': {
+        'fl_oz': 8,
+        'cup': 1,
+        'pint': 0.5,
+        'quart': 0.25,
+        'gallon': 0.0625,
+        'tablespoon': 16,
+        'teaspoon': 48,
+        'ml': 236.588,
+        'l': 0.236588
+      },
+      'pint': {
+        'fl_oz': 16,
+        'cup': 2,
+        'pint': 1,
+        'quart': 0.5,
+        'gallon': 0.125,
+        'tablespoon': 32,
+        'teaspoon': 96,
+        'ml': 473.176,
+        'l': 0.473176
+      },
+      'quart': {
+        'fl_oz': 32,
+        'cup': 4,
+        'pint': 2,
+        'quart': 1,
+        'gallon': 0.25,
+        'tablespoon': 64,
+        'teaspoon': 192,
+        'ml': 946.353,
+        'l': 0.946353
+      },
+      'gallon': {
+        'fl_oz': 128,
+        'cup': 16,
+        'pint': 8,
+        'quart': 4,
+        'gallon': 1,
+        'tablespoon': 256,
+        'teaspoon': 768,
+        'ml': 3785.41,
+        'l': 3.78541
+      },
+      'tablespoon': {
+        'fl_oz': 0.5,
+        'cup': 0.0625,
+        'pint': 0.03125,
+        'quart': 0.015625,
+        'gallon': 0.00390625,
+        'tablespoon': 1,
+        'teaspoon': 3,
+        'ml': 14.7868,
+        'l': 0.0147868
+      },
+      'teaspoon': {
+        'fl_oz': 0.166667,
+        'cup': 0.0208333,
+        'pint': 0.0104167,
+        'quart': 0.00520833,
+        'gallon': 0.00130208,
+        'tablespoon': 0.333333,
+        'teaspoon': 1,
+        'ml': 4.92892,
+        'l': 0.00492892
+      },
+      'ml': {
+        'fl_oz': 0.033814,
+        'cup': 0.00422675,
+        'pint': 0.00211338,
+        'quart': 0.00105669,
+        'gallon': 0.000264172,
+        'tablespoon': 0.067628,
+        'teaspoon': 0.202884,
+        'ml': 1,
+        'l': 0.001
+      },
+      'l': {
+        'fl_oz': 33.814,
+        'cup': 4.22675,
+        'pint': 2.11338,
+        'quart': 1.05669,
+        'gallon': 0.264172,
+        'tablespoon': 67.628,
+        'teaspoon': 202.884,
+        'ml': 1000,
+        'l': 1
+      }
+    };
+
+    const input1 = document.getElementById('input1');
+    const input2 = document.getElementById('input2');
+    const unit1 = document.getElementById('unit1');
+    const unit2 = document.getElementById('unit2');
+    const swapBtn = document.getElementById('swapBtn');
+    const clearBtn = document.getElementById('clearBtn');
+
+    let isConverting = false;
+
+    function convert(sourceInput, targetInput, sourceUnit, targetUnit) {
+      if (isConverting) return;
+      isConverting = true;
+
+      const sourceValue = parseFloat(sourceInput.value);
+
+      if (isNaN(sourceValue) || sourceValue === '') {
+        targetInput.value = '';
+        isConverting = false;
+        return;
+      }
+
+      const sourceUnitValue = sourceUnit.value;
+      const targetUnitValue = targetUnit.value;
+
+      // Direct conversion using lookup table
+      const conversionFactor = conversionFactors[sourceUnitValue][targetUnitValue];
+      const targetValue = sourceValue * conversionFactor;
+
+      // Round to appropriate decimal places
+      const rounded = Math.round(targetValue * 100000) / 100000;
+      targetInput.value = rounded;
+
+      isConverting = false;
+    }
+
+    // Event listeners for input changes
+    input1.addEventListener('input', () => {
+      convert(input1, input2, unit1, unit2);
+    });
+
+    input2.addEventListener('input', () => {
+      convert(input2, input1, unit2, unit1);
+    });
+
+    // Event listeners for unit changes
+    unit1.addEventListener('change', () => {
+      if (input1.value) {
+        convert(input1, input2, unit1, unit2);
+      }
+    });
+
+    unit2.addEventListener('change', () => {
+      if (input1.value) {
+        convert(input1, input2, unit1, unit2);
+      }
+    });
+
+    // Swap button functionality
+    swapBtn.addEventListener('click', () => {
+      // Swap values
+      const tempValue = input1.value;
+      input1.value = input2.value;
+      input2.value = tempValue;
+
+      // Swap units
+      const tempUnit = unit1.value;
+      unit1.value = unit2.value;
+      unit2.value = tempUnit;
+
+      // Trigger conversion if there's a value
+      if (input1.value) {
+        convert(input1, input2, unit1, unit2);
+      }
+    });
+
+    // Clear button functionality
+    clearBtn.addEventListener('click', () => {
+      input1.value = '';
+      input2.value = '';
+      input1.focus();
+    });
+
+    // Initial conversion
+    convert(input1, input2, unit1, unit2);
+  </script>
+</body>
+
+</html>
